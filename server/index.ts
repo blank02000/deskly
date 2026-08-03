@@ -3,6 +3,7 @@ import cors from 'cors'
 import express from 'express'
 import {
   clearSessionCookie,
+  credentialsConfigured,
   requireUserId,
   sessionEmail,
   setSessionCookie,
@@ -25,6 +26,10 @@ async function main() {
 
   app.post('/api/login', (req, res) => {
     try {
+      if (!credentialsConfigured() || !process.env.SESSION_SECRET?.trim()) {
+        res.status(503).json({ error: 'Auth not configured' })
+        return
+      }
       const email = String((req.body as { email?: string })?.email ?? '')
       const password = String((req.body as { password?: string })?.password ?? '')
       if (!verifyCredentials(email, password)) {

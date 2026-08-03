@@ -43,11 +43,12 @@ If `MONGODB_URI` is empty, the local API uses an **in-memory MongoDB**. Data res
 1. Import **https://github.com/blank02000/deskly** (Framework: Vite).
 2. Set env vars for Production (and Preview if used):
    - `MONGODB_URI`
-   - `DESKLY_USER`
+   - `DESKLY_USER` (login id — username or email-like; e.g. `shubh@11125` is fine, no real domain required)
    - `DESKLY_PASSWORD`
-   - `SESSION_SECRET`
-3. Redeploy after changing env vars.
-4. In Atlas → Network Access, allow **`0.0.0.0/0`** (or Vercel egress IPs).
+   - `SESSION_SECRET` (long random string)
+3. **Redeploy after changing env vars** (Vercel → Deployments → … → Redeploy). Login fails with 401 until these are present on the deployment.
+4. If `/api/login` returns **503** `Auth not configured`, the auth env vars are missing on that deployment.
+5. In Atlas → Network Access, allow **`0.0.0.0/0`** (or Vercel egress IPs).
 
 On Vercel, `/api/*` is serverless (`api/`), not Express. SPA fallback leaves `/api` alone.
 

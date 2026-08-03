@@ -12,7 +12,7 @@ export function unauthorized(message = 'Unauthorized') {
 
 function sessionSecret(): string {
   const s = process.env.SESSION_SECRET?.trim()
-  if (!s) throw unauthorized('SESSION_SECRET is not configured')
+  if (!s) throw authNotConfigured('SESSION_SECRET is not configured')
   return s
 }
 
@@ -22,6 +22,17 @@ export function configuredEmail(): string {
 
 export function configuredPassword(): string {
   return process.env.DESKLY_PASSWORD ?? process.env.AUTH_PASSWORD ?? ''
+}
+
+/** True when login id + password env are present (SESSION_SECRET checked separately). */
+export function credentialsConfigured(): boolean {
+  return Boolean(configuredEmail() && configuredPassword())
+}
+
+function authNotConfigured(message: string) {
+  const err = new Error(message) as Error & { status: number }
+  err.status = 503
+  return err
 }
 
 function safeEqual(a: string, b: string): boolean {
@@ -35,6 +46,10 @@ function safeEqual(a: string, b: string): boolean {
   return timingSafeEqual(ba, bb)
 }
 
+/**
+ * Login id is treated as an opaque username (email-like strings OK; no TLD required).
+ * Comparison is exact after trim on the id; password is exact (no trim).
+ */
 export function verifyCredentials(email: string, password: string): boolean {
   const wantEmail = configuredEmail()
   const wantPass = configuredPassword()

@@ -20,7 +20,9 @@ export function Landing({ onLoggedIn }: Props) {
       const res = await login(email, password)
       onLoggedIn(res.email)
     } catch {
-      setError('Invalid email or password')
+      setError(err instanceof Error && /not configured/i.test(err.message)
+        ? 'Sign-in is not configured on the server'
+        : 'Invalid email or password')
     } finally {
       setBusy(false)
     }
@@ -39,12 +41,12 @@ export function Landing({ onLoggedIn }: Props) {
         </p>
         <form className="landing-form" onSubmit={onSubmit}>
           <label className="landing-field">
-            <span className="visually-hidden">Email</span>
+            <span className="visually-hidden">Email or username</span>
             <input
               type="text"
               name="email"
               autoComplete="username"
-              placeholder="Email"
+              placeholder="Email or username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
