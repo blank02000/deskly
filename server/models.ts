@@ -50,8 +50,9 @@ const DailyNoteSchema = new Schema(
   { _id: false },
 )
 
+// _id = signed-in user id (email, normalized) — one private workspace per user
 const WorkspaceSchema = new Schema({
-  _id: { type: String, default: 'default' },
+  _id: { type: String, required: true },
   clients: { type: [ClientSchema], default: [] },
   tasks: { type: [TaskSchema], default: [] },
   deliverables: { type: [DeliverableSchema], default: [] },

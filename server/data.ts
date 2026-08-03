@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import { Workspace } from './models.js'
-import { buildSeed } from './seed.js'
+import { buildEmpty } from './seed.js'
 
 export type DbMode = 'atlas' | 'memory'
 
@@ -41,11 +41,12 @@ export async function connectDb(): Promise<DbMode> {
   }
 }
 
-export async function ensureWorkspace() {
-  let doc = await Workspace.findById('default')
+/** One workspace document per signed-in user id. Creates empty desk on first load. */
+export async function ensureWorkspace(userId: string) {
+  let doc = await Workspace.findById(userId)
   if (!doc) {
-    doc = await Workspace.create({ _id: 'default', ...buildSeed() })
-    console.log('Seeded default workspace')
+    doc = await Workspace.create({ _id: userId, ...buildEmpty() })
+    console.log('Created empty workspace for', userId)
   }
   return doc
 }
@@ -68,13 +69,13 @@ export async function getHealth() {
   }
 }
 
-export async function getState() {
+export async function getState(userId: string) {
   await connectDb()
-  const doc = await ensureWorkspace()
+  const doc = await ensureWorkspace(userId)
   return toAppData(doc)
 }
 
-export async function putState(body: unknown) {
+export async function putState(userId: string, body: unknown) {
   await connectDb()
   const { clients, tasks, deliverables, dailyNotes } = (body ?? {}) as Record<string, unknown>
   if (
@@ -88,19 +89,23 @@ export async function putState(body: unknown) {
     throw err
   }
   const doc = await Workspace.findByIdAndUpdate(
-    'default',
+    userId,
     { clients, tasks, deliverables, dailyNotes },
     { new: true, upsert: true },
   )
   return toAppData(doc!)
 }
 
-export async function seedState() {
+/** Clear all desk data for the user (empty workspace). */
+export async function clearState(userId: string) {
   await connectDb()
-  const seed = buildSeed()
-  const doc = await Workspace.findByIdAndUpdate('default', seed, {
+  const empty = buildEmpty()
+  const doc = await Workspace.findByIdAndUpdate(userId, empty, {
     new: true,
     upsert: true,
   })
   return toAppData(doc!)
 }
+
+/** @deprecated alias — kept for /api/seed route name */
+export const seedState = clearState

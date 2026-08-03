@@ -9,8 +9,7 @@
     "dev:web": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test:api": "tsx server/test-api.ts",
-    "seed": "tsx -e \"fetch('http://localhost:8787/api/seed',{method:'POST'}).then(r=>r.json()).then(d=>console.log('seeded', {c:d.clients.length,t:d.tasks.length,d:d.deliverables.length})).catch(e=>{console.error(e);process.exit(1)})\""
+    "test:api": "tsx server/test-api.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

@@ -1,5 +1,4 @@
-import { clearState } from '../server/data.js'
-import { requireUserId } from '../server/auth.js'
+import { clearSessionCookie } from '../server/auth.js'
 import { sendJson, withHandler } from './_util.js'
 
 export default withHandler(async (req, res) => {
@@ -7,6 +6,6 @@ export default withHandler(async (req, res) => {
     sendJson(res, 405, { error: 'Method not allowed' })
     return
   }
-  const userId = await requireUserId(req)
-  sendJson(res, 200, await clearState(userId))
+  clearSessionCookie(res)
+  sendJson(res, 200, { ok: true })
 })
