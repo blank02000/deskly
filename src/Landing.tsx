@@ -19,7 +19,7 @@ export function Landing({ onLoggedIn }: Props) {
     try {
       const res = await login(email, password)
       onLoggedIn(res.email)
-    } catch {
+    } catch (err: any) {
       setError(err instanceof Error && /not configured/i.test(err.message)
         ? 'Sign-in is not configured on the server'
         : 'Invalid email or password')
